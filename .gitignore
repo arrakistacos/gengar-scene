@@ -1,0 +1,12 @@
+*.jar
+*_test.png
+*_render.png
+screenshot*.png
+click_*.png
+*_state.png
+*_check.png
+final_*.png
+page_*.png
+initial.png
+test_sikuli.sikuli/
+*.jar

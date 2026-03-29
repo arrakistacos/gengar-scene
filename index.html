@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pokemon Pastel Scene 💜⚡</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            overflow: hidden;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #e8d5e7 0%, #d4e5ed 50%, #e7d5e8 100%);
+            transition: background 0.5s ease;
+        }
+        
+        #canvas-container {
+            width: 100vw;
+            height: 100vh;
+        }
+        
+        .ui-overlay {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            pointer-events: none;
+            z-index: 100;
+        }
+        
+        h1 {
+            color: #6b4c7a;
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 4px rgba(255,255,255,0.5);
+            margin-bottom: 10px;
+            letter-spacing: -1px;
+            transition: all 0.3s ease;
+        }
+        
+        h1.pikachu-theme {
+            color: #d4a017;
+            text-shadow: 2px 2px 4px rgba(255,255,255,0.7);
+        }
+        
+        .subtitle {
+            color: #8b6b9a;
+            font-size: 1.1rem;
+            background: rgba(255,255,255,0.7);
+            padding: 8px 20px;
+            border-radius: 20px;
+            display: inline-block;
+            transition: all 0.3s ease;
+        }
+        
+        .subtitle.pikachu-theme {
+            color: #b8860b;
+            background: rgba(255,250,205,0.8);
+        }
+        
+        .controls {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 12px;
+            z-index: 100;
+            flex-wrap: wrap;
+            justify-content: center;
+            max-width: 90vw;
+        }
+        
+        button {
+            background: rgba(255,255,255,0.9);
+            border: 2px solid #c8a8d8;
+            color: #6b4c7a;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(107, 76, 122, 0.2);
+        }
+        
+        button:hover {
+            background: #c8a8d8;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(107, 76, 122, 0.3);
+        }
+        
+        button.pikachu-btn {
+            border-color: #f0d878;
+            color: #d4a017;
+        }
+        
+        button.pikachu-btn:hover {
+            background: #f0d878;
+            color: #8b6914;
+        }
+        
+        button.switch-btn {
+            background: linear-gradient(135deg, #e8d5e7, #f5d5e0);
+            border-color: #d4a017;
+            color: #8b6914;
+            font-size: 16px;
+            padding: 14px 28px;
+        }
+        
+        button.switch-btn:hover {
+            background: linear-gradient(135deg, #f5d5e0, #f0d878);
+            transform: translateY(-2px) scale(1.05);
+        }
+        
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 1.5rem;
+            color: #6b4c7a;
+            background: rgba(255,255,255,0.9);
+            padding: 30px 50px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            z-index: 200;
+        }
+        
+        .loading.pikachu-loading {
+            color: #d4a017;
+        }
+        
+        .spinner {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            border: 3px solid #e8d5e7;
+            border-top-color: #6b4c7a;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 15px;
+            vertical-align: middle;
+        }
+        
+        .spinner.pikachu-spinner {
+            border-color: #fffacd;
+            border-top-color: #d4a017;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        .pokemon-indicator {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.8);
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            color: #6b4c7a;
+            z-index: 100;
+        }
+        
+        .pokemon-indicator span {
+            font-size: 1.5rem;
+            margin-right: 8px;
+        }
+    </style>
+    
+    <!-- Three.js CDN -->
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+            "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+        }
+    }
+    </script>
+</head>
+<body>
+    <div class="ui-overlay">
+        <h1 id="title">👻 Gengar 💜</h1>
+        <div class="subtitle" id="subtitle">A Cute & Spooky Pastel Scene</div>
+    </div>
+    
+    <div class="pokemon-indicator" id="pokemon-indicator">
+        <span>💜</span> Gengar
+    </div>
+    
+    <div class="loading" id="loading">
+        <span class="spinner" id="spinner"></span>
+        <span id="loading-text">Summoning Gengar...</span>
+    </div>
+    
+    <div class="controls">
+        <button class="switch-btn" onclick="switchPokemon()">🔄 Switch Pokemon</button>
+        <button onclick="toggleRotation()">⏯️ Pause/Rotate</button>
+        <button id="bg-btn" onclick="changeBackground()">🎨 New Colors</button>
+        <button onclick="resetCamera()">📷 Reset View</button>
+    </div>
+    
+    <div id="canvas-container"></div>
+    
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+        import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+        import { RectAreaLightUniformsLib } from 'three/addons/lights/RectAreaLightUniformsLib.js';
+        
+        // Scene setup
+        const scene = new THREE.Scene();
+        
+        // Pokemon data
+        const pokemon = {
+            gengar: {
+                name: 'Gengar',
+                emoji: '👻',
+                icon: '💜',
+                file: './gengar.glb',
+                title: '👻 Gengar 💜',
+                subtitle: 'A Cute & Spooky Pastel Scene',
+                theme: 'gengar',
+                loadingText: 'Summoning Gengar...',
+                backgrounds: [
+                    ['#e8d5e7', '#d4e5ed', '#e7d5e8'], // Pastel purple/blue/pink
+                    ['#f5e6d3', '#e8d4c4', '#f3e5f5'], // Warm peach
+                    ['#d4edda', '#e7f3ff', '#e8f5e9'], // Mint green
+                    ['#fff3e0', '#fce4ec', '#f3e5f5'], // Soft orange/pink
+                ],
+                ambientColor: 0xc8a8d8,
+                dirLightColor: 0xfff0f5,
+                dirLightIntensity: 1.2,
+                scale: 2
+            },
+            pikachu: {
+                name: 'Pikachu',
+                emoji: '⚡',
+                icon: '⚡',
+                file: './pikachu.glb',
+                title: '⚡ Pikachu 💛',
+                subtitle: 'An Electric & Cheerful Scene',
+                theme: 'pikachu',
+                loadingText: 'Summoning Pikachu...',
+                backgrounds: [
+                    ['#fffacd', '#ffe4b5', '#fff8dc'], // Lemon chiffon/peach
+                    ['#fff8dc', '#f0e68c', '#fafad2'], // Light goldenrod
+                    ['#ffe4e1', '#fffacd', '#f5f5dc'], // Misty rose/lemon
+                    ['#f5f5dc', '#fffacd', '#ffe4b5'], // Beige/lemon
+                ],
+                ambientColor: 0xfffacd,
+                dirLightColor: 0xfff8dc,
+                dirLightIntensity: 1.4,
+                scale: 1.8
+            }
+        };
+        
+        let currentPokemon = 'gengar';
+        let currentBg = 0;
+        let loadedModels = {};
+        let isRotating = true;
+        let activeModel = null;
+        
+        // Camera
+        const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 1, 6);
+        
+        // Renderer
+        const renderer = new THREE.WebGLRenderer({ 
+            antialias: true, 
+            alpha: true,
+            powerPreference: "high-performance"
+        });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 1.2;
+        document.getElementById('canvas-container').appendChild(renderer.domElement);
+        
+        // Controls
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.05;
+        controls.minDistance = 2;
+        controls.maxDistance = 15;
+        controls.target.set(0, 1, 0);
+        
+        // Lighting
+        RectAreaLightUniformsLib.init();
+        
+        // Ambient light
+        const ambientLight = new THREE.AmbientLight(pokemon.gengar.ambientColor, 0.4);
+        scene.add(ambientLight);
+        
+        // Main directional light
+        const dirLight = new THREE.DirectionalLight(pokemon.gengar.dirLightColor, pokemon.gengar.dirLightIntensity);
+        dirLight.position.set(5, 8, 5);
+        dirLight.castShadow = true;
+        dirLight.shadow.mapSize.width = 2048;
+        dirLight.shadow.mapSize.height = 2048;
+        dirLight.shadow.camera.near = 0.5;
+        dirLight.shadow.camera.far = 50;
+        dirLight.shadow.bias = -0.001;
+        scene.add(dirLight);
+        
+        // Rim light
+        const rimLight = new THREE.DirectionalLight(0xa8d8e8, 0.8);
+        rimLight.position.set(-5, 3, -5);
+        scene.add(rimLight);
+        
+        // Fill light
+        const fillLight = new THREE.DirectionalLight(0xf5d5e0, 0.6);
+        fillLight.position.set(-5, 2, 5);
+        scene.add(fillLight);
+        
+        // Point lights for glow
+        const glowLight1 = new THREE.PointLight(0xd8a8e8, 0.5, 10);
+        glowLight1.position.set(2, 2, 2);
+        scene.add(glowLight1);
+        
+        const glowLight2 = new THREE.PointLight(0xa8d8e8, 0.5, 10);
+        glowLight2.position.set(-2, 1, -2);
+        scene.add(glowLight2);
+        
+        // Particle system
+        const particleCount = 100;
+        const particleGeometry = new THREE.BufferGeometry();
+        const particlePositions = new Float32Array(particleCount * 3);
+        const particleSpeeds = [];
+        
+        for (let i = 0; i < particleCount; i++) {
+            particlePositions[i * 3] = (Math.random() - 0.5) * 8;
+            particlePositions[i * 3 + 1] = Math.random() * 4;
+            particlePositions[i * 3 + 2] = (Math.random() - 0.5) * 8;
+            particleSpeeds.push(Math.random() * 0.02 + 0.01);
+        }
+        
+        particleGeometry.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3));
+        
+        const particleMaterial = new THREE.PointsMaterial({
+            color: 0xffd5e8,
+            size: 0.05,
+            transparent: true,
+            opacity: 0.8,
+            blending: THREE.AdditiveBlending
+        });
+        
+        const particles = new THREE.Points(particleGeometry, particleMaterial);
+        scene.add(particles);
+        
+        // Load a Pokemon model
+        const loader = new GLTFLoader();
+        
+        function loadPokemon(pokemonKey) {
+            const pokeData = pokemon[pokemonKey];
+            
+            // Show loading
+            document.getElementById('loading').classList.remove('hidden');
+            document.getElementById('loading-text').textContent = pokeData.loadingText;
+            
+            // Check if already loaded
+            if (loadedModels[pokemonKey]) {
+                switchToPokemon(pokemonKey);
+                return;
+            }
+            
+            loader.load(pokeData.file, 
+                (gltf) => {
+                    const model = gltf.scene;
+                    
+                    // Center and scale
+                    const box = new THREE.Box3().setFromObject(model);
+                    const center = box.getCenter(new THREE.Vector3());
+                    const size = box.getSize(new THREE.Vector3());
+                    
+                    const maxDim = Math.max(size.x, size.y, size.z);
+                    const scale = pokeData.scale / maxDim;
+                    model.scale.set(scale, scale, scale);
+                    
+                    // Center
+                    model.position.x = -center.x * scale;
+                    model.position.y = -center.y * scale + 0.5;
+                    model.position.z = -center.z * scale;
+                    
+                    // Enable shadows
+                    model.traverse((child) => {
+                        if (child.isMesh) {
+                            child.castShadow = true;
+                            child.receiveShadow = true;
+                            if (child.material) {
+                                child.material.roughness = 0.3;
+                                child.material.metalness = 0.1;
+                            }
+                        }
+                    });
+                    
+                    loadedModels[pokemonKey] = model;
+                    switchToPokemon(pokemonKey);
+                },
+                (xhr) => {
+                    console.log(`${pokeData.name}: ${(xhr.loaded / xhr.total * 100).toFixed(0)}% loaded`);
+                },
+                (error) => {
+                    console.error(`Error loading ${pokeData.name}:`, error);
+                    document.getElementById('loading-text').textContent = `Error loading ${pokeData.name} 😢`;
+                }
+            );
+        }
+        
+        function switchToPokemon(pokemonKey) {
+            const pokeData = pokemon[pokemonKey];
+            
+            // Remove current model
+            if (activeModel) {
+                scene.remove(activeModel);
+            }
+            
+            // Add new model
+            activeModel = loadedModels[pokemonKey];
+            scene.add(activeModel);
+            
+            // Update UI
+            currentPokemon = pokemonKey;
+            currentBg = 0;
+            updateUI(pokeData);
+            updateBackground();
+            updateLighting(pokeData);
+            
+            // Hide loading
+            document.getElementById('loading').classList.add('hidden');
+            
+            // Animate entrance
+            animateEntrance(activeModel, pokeData.scale);
+        }
+        
+        function updateUI(pokeData) {
+            const title = document.getElementById('title');
+            const subtitle = document.getElementById('subtitle');
+            const indicator = document.getElementById('pokemon-indicator');
+            const loading = document.getElementById('loading');
+            const spinner = document.getElementById('spinner');
+            const bgBtn = document.getElementById('bg-btn');
+            
+            title.textContent = pokeData.title;
+            subtitle.textContent = pokeData.subtitle;
+            indicator.innerHTML = `<span>${pokeData.icon}</span> ${pokeData.name}`;
+            
+            // Update theme classes
+            if (pokeData.theme === 'pikachu') {
+                title.classList.add('pikachu-theme');
+                subtitle.classList.add('pikachu-theme');
+                loading.classList.add('pikachu-loading');
+                spinner.classList.add('pikachu-spinner');
+                bgBtn.classList.add('pikachu-btn');
+            } else {
+                title.classList.remove('pikachu-theme');
+                subtitle.classList.remove('pikachu-theme');
+                loading.classList.remove('pikachu-loading');
+                spinner.classList.remove('pikachu-spinner');
+                bgBtn.classList.remove('pikachu-btn');
+            }
+        }
+        
+        function updateBackground() {
+            const colors = pokemon[currentPokemon].backgrounds[currentBg];
+            document.body.style.background = `linear-gradient(135deg, ${colors[0]} 0%, ${colors[1]} 50%, ${colors[2]} 100%)`;
+        }
+        
+        function updateLighting(pokeData) {
+            ambientLight.color.setHex(pokeData.ambientColor);
+            dirLight.color.setHex(pokeData.dirLightColor);
+            dirLight.intensity = pokeData.dirLightIntensity;
+            
+            if (pokeData.theme === 'pikachu') {
+                rimLight.color.setHex(0xa8c8e8);
+                fillLight.color.setHex(0xf5e0d5);
+                particleMaterial.color.setHex(0xffe5b4);
+            } else {
+                rimLight.color.setHex(0xa8d8e8);
+                fillLight.color.setHex(0xf5d5e0);
+                particleMaterial.color.setHex(0xffd5e8);
+            }
+        }
+        
+        function animateEntrance(model, targetScale) {
+            const baseScale = targetScale / (2 / Math.max(1, 1)); // Calculate base from load
+            model.scale.set(0, 0, 0);
+            
+            let entranceScale = 0;
+            const entranceInterval = setInterval(() => {
+                entranceScale += 0.05;
+                if (entranceScale >= 1) {
+                    entranceScale = 1;
+                    clearInterval(entranceInterval);
+                }
+                const s = pokemon[currentPokemon].scale * entranceScale;
+                model.scale.set(s, s, s);
+            }, 20);
+        }
+        
+        // Animation loop
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            // Animate particles
+            const positions = particles.geometry.attributes.position.array;
+            for (let i = 0; i < particleCount; i++) {
+                positions[i * 3 + 1] += particleSpeeds[i];
+                if (positions[i * 3 + 1] > 4) {
+                    positions[i * 3 + 1] = 0;
+                }
+            }
+            particles.geometry.attributes.position.needsUpdate = true;
+            
+            // Float animation
+            if (activeModel) {
+                const time = Date.now() * 0.001;
+                activeModel.position.y += Math.sin(time) * 0.002;
+                
+                if (isRotating) {
+                    activeModel.rotation.y += 0.005;
+                }
+            }
+            
+            // Animate lights
+            const time = Date.now() * 0.001;
+            glowLight1.intensity = 0.5 + Math.sin(time * 2) * 0.2;
+            glowLight2.intensity = 0.5 + Math.cos(time * 2) * 0.2;
+            
+            controls.update();
+            renderer.render(scene, camera);
+        }
+        
+        animate();
+        
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+        
+        // Global functions for buttons
+        window.switchPokemon = () => {
+            const nextPokemon = currentPokemon === 'gengar' ? 'pikachu' : 'gengar';
+            loadPokemon(nextPokemon);
+        };
+        
+        window.toggleRotation = () => {
+            isRotating = !isRotating;
+        };
+        
+        window.changeBackground = () => {
+            currentBg = (currentBg + 1) % pokemon[currentPokemon].backgrounds.length;
+            updateBackground();
+        };
+        
+        window.resetCamera = () => {
+            camera.position.set(0, 1, 6);
+            controls.target.set(0, 1, 0);
+            controls.update();
+        };
+        
+        // Load initial Pokemon
+        loadPokemon('gengar');
+    </script>
+</body>
+</html>

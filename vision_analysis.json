@@ -1,0 +1,55 @@
+{
+  "labels": [
+    {
+      "description": "White",
+      "score": 0.9675658941268921
+    },
+    {
+      "description": "Night",
+      "score": 0.571742832660675
+    }
+  ],
+  "pokemon_score": 0,
+  "web_entities": [
+    {
+      "description": "Tela preta",
+      "score": 0.9302999973297119
+    },
+    {
+      "description": "Jorge & Mateus",
+      "score": 0.6409000158309937
+    },
+    {
+      "description": "",
+      "score": 0.5812000036239624
+    },
+    {
+      "description": "YouTube",
+      "score": 0.5812000036239624
+    },
+    {
+      "description": "T. E. P., EP 1",
+      "score": 0.3944999873638153
+    },
+    {
+      "description": "Television",
+      "score": 0.3149999976158142
+    },
+    {
+      "description": "Image",
+      "score": 0.3075999915599823
+    },
+    {
+      "description": "Painting",
+      "score": 0.2953999936580658
+    },
+    {
+      "description": "YouTube",
+      "score": 0.29010000824928284
+    },
+    {
+      "description": "ACURA",
+      "score": 0.27619999647140503
+    }
+  ]
+}
